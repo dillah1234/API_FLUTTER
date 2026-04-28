@@ -3,196 +3,1135 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
-  runApp(const MyApp());
+  runApp(MaterialApp(debugShowCheckedModeBanner: false, home: Home()));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+class Home extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'API Flutter',
-      home: HttpApi(),
-    );
-  }
+  State<Home> createState() => _HomeState();
 }
 
-class HttpApi extends StatefulWidget {
-  const HttpApi({super.key});
+class _HomeState extends State<Home> {
+  List data = [];
 
-  @override
-  State<HttpApi> createState() => _HttpApiState();
-}
+  Future getData() async {
+    var res = await http.get(Uri.parse('https://dummyjson.com/products'));
+    var hasil = jsonDecode(res.body);
 
-class _HttpApiState extends State<HttpApi> {
-  List<dynamic> data = [];
-  bool isLoading = true;
-
-  Future ambilData() async {
-    var response = await http.get(Uri.parse('https://dummyjson.com/products'));
-
-    if (response.statusCode == 200) {
-      var hasil = jsonDecode(response.body);
-      setState(() {
-        data = hasil['products'];
-        isLoading = false;
-      });
-    } else {
-      throw Exception("Gagal mengambil data");
-    }
+    setState(() {
+      data = hasil['products'];
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    ambilData();
+    getData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.red, title: Text("my projectKU")),
-      body: Column(
-        children: [
-          SizedBox(
-            height: 220,
-            child: PageView(
-              children: data.take(10).map((item) {
-                return Container(
-                  margin: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          item['images'][0],
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
+      backgroundColor: Colors.purple[200],
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(80),
+        child: Container(
+          color: Colors.purple,
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [
-                              Colors.black.withOpacity(0.6),
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.4),
-                            ],
+                      child: Row(
+                        children: [
+                          Icon(Icons.search, color: Colors.grey),
+                          SizedBox(width: 5),
+                          Text(
+                            "Cari di sini...",
+                            style: TextStyle(color: Colors.grey),
                           ),
-                        ),
+                        ],
                       ),
-                      Positioned(
-                        left: 16,
-                        bottom: 16,
-                        right: 16,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item['title'],
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-
-                            SizedBox(height: 5),
-
-                            Text(
-                              "Rp ${item['price']}",
-                              style: TextStyle(
-                                color: Colors.yellow,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                );
-              }).toList(),
+
+                  SizedBox(width: 10),
+
+                  Icon(Icons.chat, color: Colors.white),
+
+                  SizedBox(width: 10),
+
+                  Icon(Icons.shopping_cart, color: Colors.white),
+                ],
+              ),
             ),
           ),
+        ),
+      ),
 
-          Expanded(
-            child: ListView(
-              children: data.take(10).map((item) {
-                return Container(
-                  margin: EdgeInsets.all(8),
-                  padding: EdgeInsets.all(10),
+      body: ListView(
+        padding: EdgeInsets.all(6),
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          item['images'][0],
-                          height: 100,
-                          width: 100,
-                          fit: BoxFit.cover,
-                        ),
+                      Image.network(
+                        data[0]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
                       ),
 
-                      SizedBox(width: 10),
-
-                      Expanded(
+                      Padding(
+                        padding: EdgeInsets.all(6),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              item['title'],
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-
-                            SizedBox(height: 5),
-
-                            Text(
-                              item['description'],
+                              data[0]['title'],
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[0]['price']}",
                               style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.black54,
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-
-                            SizedBox(height: 8),
-
-                            Text(
-                              "Rp ${item['price']}",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[0]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[0]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                     ],
                   ),
-                );
-              }).toList(),
-            ),
+                ),
+              ),
+
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.network(
+                        data[1]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[1]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[1]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[1]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[1]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[2]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[2]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[2]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[2]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[2]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[3]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[3]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[3]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[3]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[3]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[4]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[4]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[4]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[4]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[4]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[5]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[5]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[5]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[5]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[5]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[6]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[6]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[6]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[6]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[6]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[7]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[7]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[7]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[7]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[7]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[8]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[8]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[8]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[8]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[8]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[9]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[9]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[9]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[9]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[9]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[10]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[10]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[10]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[10]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[10]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[11]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[11]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[11]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[11]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[11]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[12]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[12]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[12]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[12]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[12]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[13]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[13]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[13]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[13]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[13]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[14]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[14]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[14]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[14]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[14]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data[15]['images'][0],
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(6),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data[15]['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Rp ${data[15]['price']}",
+                              style: TextStyle(
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 12,
+                                  color: Colors.orange,
+                                ),
+                                Text(
+                                  "${data[15]['rating']}",
+                                  style: TextStyle(fontSize: 11),
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Terjual ${data[15]['stock']}",
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
